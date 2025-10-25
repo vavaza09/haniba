@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class RideManager : MonoBehaviour
 {
@@ -8,8 +9,12 @@ public class RideManager : MonoBehaviour
 
 
     [Header("UI")]
-    [SerializeField] RideOfferUI offerUI;
+    [SerializeField] RideOfferUI Phone;
+    [SerializeField] GameObject waitPanel;
 
+    //[SerializeField]
+    private float minWait = 6f;
+    private float maxWait = 9f;
 
     int index;
 
@@ -27,7 +32,11 @@ public class RideManager : MonoBehaviour
         }
         var offer = database.offers[index];
         float earn = offer.GetEarn(defaultRatePerKm);
-        offerUI.Show(offer, earn, OnAccepted, OnDeclinedOrTimeout);
+
+        if (waitPanel != null) waitPanel.SetActive(false);
+
+        Phone.gameObject.SetActive(true);
+        Phone.Show(offer, earn, OnAccepted, OnDeclinedOrTimeout);
     }
 
     void OnAccepted(RideOffer offer)
@@ -41,6 +50,28 @@ public class RideManager : MonoBehaviour
     {
         Debug.Log($"Ride declined or timed out: {offer.passengerName}");
         index++;
+        StartCoroutine(WaitAndShowNext());
+    }
+
+    IEnumerator WaitAndShowNext()
+    {
+        if (waitPanel != null)
+        {
+            waitPanel.SetActive(true);
+        }
+        float wait = Random.Range(minWait, maxWait);
+        float t = 0f;
+
+        while (t < wait)
+        {
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        if (waitPanel != null)
+        {
+            waitPanel.SetActive(false);
+        }
         ShowNext();
     }
 

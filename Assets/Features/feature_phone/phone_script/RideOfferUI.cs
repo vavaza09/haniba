@@ -5,10 +5,10 @@ using System.Collections;
 
 public class RideOfferUI : MonoBehaviour
 {
-    [SerializeField] GameObject phone;
-    [SerializeField] bool pauseOnOpen = false;
+    [Header("Panels")]
+    [SerializeField] GameObject pssengerPanel;
 
-    [Header("phone_canvas")]
+    [Header("Phone_Canvas References")]
     [SerializeField] Image person_image;
     [SerializeField] TMP_Text person_name;
     [SerializeField] TMP_Text person_rating;
@@ -21,6 +21,7 @@ public class RideOfferUI : MonoBehaviour
     [SerializeField] TMP_Text accept_time;     // Accept_button/Accept_Time
     [SerializeField] Button decline_button;
 
+    [Header("Settings")]
     [SerializeField] float acceptTimes = 14f;
 
     RideOffer current;
@@ -36,29 +37,36 @@ public class RideOfferUI : MonoBehaviour
         onAccept = acceptCb;
         onDeclineOrTimeout = declineCb;
 
-        if (pauseOnOpen) Time.timeScale = 0f;
-        phone.SetActive(true);
-
+        // Fill UI fields
         if (person_image != null) person_image.sprite = offer.passengerPic;
         if (person_name != null) person_name.text = offer.passengerName;
         if (person_rating != null) person_rating.text = offer.rating.ToString("0.0");
         if (howfar_text != null) howfar_text.text = $"{offer.distance:0.0} km";
         if (pickup_text != null) pickup_text.text = offer.pickup;
         if (drop_text != null) drop_text.text = offer.dropoff;
-        if (price_text != null) price_text.text = $"${earn:0}";
+        if (price_text != null) price_text.text = $"{earn:0}";
 
+        // Buttons
         accept_button.onClick.RemoveAllListeners();
         decline_button.onClick.RemoveAllListeners();
         accept_button.onClick.AddListener(Accept);
         decline_button.onClick.AddListener(Decline);
 
-        if (countdownCo != null) 
-        { 
-            StopCoroutine(countdownCo); 
-        }
+        // Show passenger panel
+        if (pssengerPanel != null)pssengerPanel.SetActive(true);
+
+        // Start countdown
+        if (countdownCo != null)StopCoroutine(countdownCo);
+
         countdownCo = StartCoroutine(Countdown());
     }
 
+    public void Hide()
+    {
+        if (countdownCo != null)StopCoroutine(countdownCo);
+
+        if (pssengerPanel != null)pssengerPanel.SetActive(false);
+    }
 
     IEnumerator Countdown()
     {
@@ -73,16 +81,25 @@ public class RideOfferUI : MonoBehaviour
         Timeout();
     }
 
-    void Accept() { if (countdownCo != null) StopCoroutine(countdownCo); Close(); onAccept?.Invoke(current); }
-    void Decline() { if (countdownCo != null) StopCoroutine(countdownCo); Close(); onDeclineOrTimeout?.Invoke(current); }
-    void Timeout() { Close(); onDeclineOrTimeout?.Invoke(current); }
-
-    void Close()
+    void Accept()
     {
-        phone.SetActive(false);
-        if (pauseOnOpen) 
-        { 
-            Time.timeScale = 1f;
-        } 
+        if (countdownCo != null)StopCoroutine(countdownCo);
+
+        Hide();
+        onAccept?.Invoke(current);
+    }
+
+    void Decline()
+    {
+        if (countdownCo != null)StopCoroutine(countdownCo);
+
+        Hide();
+        onDeclineOrTimeout?.Invoke(current);
+    }
+
+    void Timeout()
+    {
+        Hide();
+        onDeclineOrTimeout?.Invoke(current);
     }
 }
