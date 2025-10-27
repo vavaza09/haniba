@@ -1,0 +1,1 @@
+public enum PersonKind { Human, Ghost }
