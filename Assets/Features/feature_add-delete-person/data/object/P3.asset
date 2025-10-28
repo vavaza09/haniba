@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c8c608b1e856e84e8402e054d2d3a66, type: 3}
   m_Name: P3
   m_EditorClassIdentifier: 
-  id: 0
-  displayName: 
+  id: 2
+  displayName: pupa
   kind: 0
   dialogKey: 
   prefabOverride: {fileID: 0}

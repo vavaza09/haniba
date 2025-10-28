@@ -5,10 +5,14 @@ using UnityEngine.Events;
 public class PersonManager : MonoBehaviour
 {
     [Header("Data Source (ScriptableObject)")]
-    [SerializeField] private PersonSet personSet;   
+    [SerializeField] private PersonSet personSet;
 
     [Header("Limits")]
-    [SerializeField, Min(1)] private int maxActive = 3; 
+    [SerializeField, Min(1)] private int maxActive = 3;
+
+    [Header("Order")]
+    private readonly List<int> _order = new();
+    public IReadOnlyList<int> GetActiveOrder() => _order;
 
     [Header("Events")]
     public UnityEvent<Person> OnPersonAdded;
@@ -65,6 +69,7 @@ public class PersonManager : MonoBehaviour
 
         var inst = Instantiate(prefab, position, rotation ?? Quaternion.identity);
         _active[id] = inst;
+        _order.Add(id);
         OnPersonAdded?.Invoke(inst);
         return true;
     }
@@ -75,6 +80,7 @@ public class PersonManager : MonoBehaviour
         if (!_active.TryGetValue(id, out var inst) || inst == null) return false;
 
         _active.Remove(id);
+        _order.Remove(id);
         Destroy(inst.gameObject);
         OnPersonRemoved?.Invoke(id);
         return true;
@@ -85,5 +91,9 @@ public class PersonManager : MonoBehaviour
     {
         var ids = new List<int>(_active.Keys);
         foreach (var id in ids) RemoveById(id);
+        _order.Clear(); 
     }
+
+    public Person GetInstanceById(int id) => _active.TryGetValue(id, out var p) ? p : null;
+
 }
