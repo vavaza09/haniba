@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b9db10d7780fbf744b44c815b07849e1, type: 3}
-  m_Name: Teset
+  m_Name: Balde
   m_EditorClassIdentifier: 
   passengerName: Balde Arough
   rating: 4.7
-  passengerPic: {fileID: 21300000, guid: 304ef757a2b5cc64381cdae8a66059be, type: 3}
+  passengerPic: {fileID: 21300000, guid: d6ee178f928e9a44c8ae293c333a107c, type: 3}
   distance: 12.4
   pickup: begja
   dropoff: Golez
   overrideRatePerKm: 0
   ratePerKm: 4.5
+  personRoad: {fileID: 11400000, guid: 754d4d73bc39c5d4daf7e8a4cccd9bd5, type: 2}
+  transformPrefab: {fileID: 4013244952908038904, guid: 02f6681a9168bb34ea81e141380c670f, type: 3}

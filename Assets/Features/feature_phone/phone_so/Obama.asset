@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9db10d7780fbf744b44c815b07849e1, type: 3}
+  m_Name: Obama
+  m_EditorClassIdentifier: 
+  passengerName: Black Obama
+  rating: 4.5
+  passengerPic: {fileID: 21300000, guid: 1b0e15f425b6abc4b8f71c13f151aca3, type: 3}
+  distance: 40
+  pickup: White House
+  dropoff: Black house
+  overrideRatePerKm: 0
+  ratePerKm: 4.5
+  personRoad: {fileID: 11400000, guid: bac609215e4a38c499f6f5afb208bb47, type: 2}
+  transformPrefab: {fileID: 4013244952908038904, guid: 0e5736ab5b12e28488fd9d81ebde7d2b, type: 3}

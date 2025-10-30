@@ -7,7 +7,7 @@ public class RideOfferUI : MonoBehaviour
 {
     [Header("Panels")]
     [SerializeField] GameObject pssengerPanel;
-
+    [SerializeField] GameObject PhoneFrame;
     [Header("Phone_Canvas References")]
     [SerializeField] Image person_image;
     [SerializeField] TMP_Text person_name;
@@ -27,6 +27,7 @@ public class RideOfferUI : MonoBehaviour
     RideOffer current;
     float currentEarn;
     Coroutine countdownCo;
+    private bool isShown = true;
     System.Action<RideOffer> onAccept;
     System.Action<RideOffer> onDeclineOrTimeout;
 
@@ -53,12 +54,38 @@ public class RideOfferUI : MonoBehaviour
         decline_button.onClick.AddListener(Decline);
 
         // Show passenger panel
-        if (pssengerPanel != null)pssengerPanel.SetActive(true);
+        if (pssengerPanel != null) pssengerPanel.SetActive(true);
 
         // Start countdown
-        if (countdownCo != null)StopCoroutine(countdownCo);
+        if (countdownCo != null) StopCoroutine(countdownCo);
 
         countdownCo = StartCoroutine(Countdown());
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (isShown)
+            {
+                HideAll();
+            }
+            else
+            {
+                ShowAll();
+            }
+            isShown = !isShown;
+        }
+    }
+
+    public void HideAll()
+    {
+        PhoneFrame.SetActive(false);
+    }
+
+    public void ShowAll()
+    {
+        PhoneFrame.SetActive(true);
     }
 
     public void Hide()

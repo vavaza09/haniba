@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;               // added for IEnumerator/Coroutine
 using System.Collections.Generic;
 
-public class RoadManager : MonoBehaviour
+public class RoadManager : MonoBehaviour, IHasDefaultRun
 {
     [Header("Default Loop Tiles")]
     [Tooltip("These tiles loop endlessly when no special ride tiles are active.")]
@@ -37,8 +37,7 @@ public class RoadManager : MonoBehaviour
 
     [SerializeField] private RideManager rm;
 
-    [SerializeField]  private RideOffer RO;
-    SpawnDialogMediator SDM;
+
 
 
     void Awake()
@@ -140,7 +139,7 @@ public class RoadManager : MonoBehaviour
         isMoving = false;
         currentSpeed = 0f;
         //SDM.NotifyEnterPickup();
-       
+
     }
 
     public void ForceStopForWait()
@@ -149,6 +148,12 @@ public class RoadManager : MonoBehaviour
         isMoving = false;
         currentSpeed = 0f;
         rm.StartWaitingThenNext();
+    }
+
+    public void DeclineOnLoad()
+    {
+        rm.StartWaitingThenNext();
+        ResumeDefaultLoop();
     }
 
     public void BeginRide(PersonRoadSet set)
