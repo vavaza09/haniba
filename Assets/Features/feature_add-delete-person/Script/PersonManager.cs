@@ -4,96 +4,89 @@ using UnityEngine.Events;
 
 public class PersonManager : MonoBehaviour
 {
-    [Header("Data Source (ScriptableObject)")]
-    [SerializeField] private PersonSet personSet;
+    [Header("Capacity")]
+    [SerializeField, Min(1)] private int capacity = 3;
 
-    [Header("Limits")]
-    [SerializeField, Min(1)] private int maxActive = 3;
-
-    [Header("Order")]
-    private readonly List<int> _order = new();
-    public IReadOnlyList<int> GetActiveOrder() => _order;
+    [Header("Active")]
+    [SerializeField] private List<Person> _active = new();
 
     [Header("Events")]
-    public UnityEvent<Person> OnPersonAdded;
-    public UnityEvent<int> OnPersonRemoved;
-    public UnityEvent OnAddFailedFull;                 
-    public UnityEvent<int> OnAddFailedNotFound;        
-    public UnityEvent<int> OnAddFailedDuplicate;      
+    public UnityEvent<Person> OnPersonAdded;    
+    public UnityEvent<Person> OnPersonRemoved;   
+    public UnityEvent OnFull;                    
+    public UnityEvent OnFreed;                  
 
-  
-    private readonly Dictionary<int, Person> _active = new();
-
-    
-    private void Awake()
-    {
-        if (personSet == null)
-        {
-            Debug.LogError("PersonManager: ยังไม่ได้อ้าง PersonSet (ScriptableObject).", this);
-            return;
-        }
-        personSet.RebuildIndex(); 
-    }
-
-    private void OnValidate()
-    {
-        if (personSet != null) personSet.RebuildIndex();
-    }
-
-    
-    public bool HasSpace => _active.Count < maxActive;
+    public int Capacity => capacity;
     public int ActiveCount => _active.Count;
-    public bool ContainsId(int id) => _active.ContainsKey(id);
-    public IReadOnlyCollection<int> GetActiveIds() => _active.Keys;
+    public bool HasSpace => _active.Count < capacity;
 
-   
-    public bool AddById(int id, Vector3 position, Quaternion? rotation = null)
+    public IReadOnlyList<Person> Active => _active;
+    public bool Contains(Person p) => p && _active.Contains(p);
+    public bool ContainsId(int id) => _active.Exists(p => p && p.Data && p.Data.id == id);
+
+    public IEnumerable<int> ActiveIds()
     {
-        if (!HasSpace)
-        {
-            OnAddFailedFull?.Invoke();
-            return false;
-        }
+        foreach (var p in _active)
+            if (p && p.Data) yield return p.Data.id;
+    }
 
-        if (_active.ContainsKey(id))
-        {
-            OnAddFailedDuplicate?.Invoke(id);
-            return false;
-        }
+    public bool AddExisting(Person instance)
+    {
+        if (instance == null) return false;
+        if (_active.Contains(instance)) return false;
+        if (!HasSpace) return false;
 
-        if (personSet == null || !personSet.TryGetPrefabById(id, out var prefab) || prefab == null)
-        {
-            OnAddFailedNotFound?.Invoke(id);
-            return false;
-        }
+        _active.Add(instance);
 
-        var inst = Instantiate(prefab, position, rotation ?? Quaternion.identity);
-        _active[id] = inst;
-        _order.Add(id);
-        OnPersonAdded?.Invoke(inst);
+     
+        instance.OnAddedToTaxi();
+
+        OnPersonAdded?.Invoke(instance);
+        if (!HasSpace) OnFull?.Invoke();
         return true;
     }
 
-   
-    public bool RemoveById(int id)
+    public bool Remove(Person p, bool ownInstance = true)
     {
-        if (!_active.TryGetValue(id, out var inst) || inst == null) return false;
+        if (p == null) return false;
 
-        _active.Remove(id);
-        _order.Remove(id);
-        Destroy(inst.gameObject);
-        OnPersonRemoved?.Invoke(id);
-        return true;
+        bool wasFull = !HasSpace;
+
+        if (_active.Remove(p))
+        {
+            p.OnRemovedFromTaxi();
+            OnPersonRemoved?.Invoke(p);
+
+            if (wasFull && HasSpace) OnFreed?.Invoke();
+
+            if (ownInstance)
+                Destroy(p.gameObject);
+
+            return true;
+        }
+        return false;
     }
 
-  
-    public void RemoveAll()
+    public Person GetInstanceById(int id)
+        => _active.Find(p => p && p.Data && p.Data.id == id);
+
+    public void RemoveAll(bool ownInstances = true)
     {
-        var ids = new List<int>(_active.Keys);
-        foreach (var id in ids) RemoveById(id);
-        _order.Clear(); 
+        
+        var copy = new List<Person>(_active);
+        foreach (var p in copy) Remove(p, ownInstances);
     }
 
-    public Person GetInstanceById(int id) => _active.TryGetValue(id, out var p) ? p : null;
+    public void SetCapacity(int newCapacity, bool ownInstances = true)
+    {
+        if (newCapacity < 1) newCapacity = 1;
+        capacity = newCapacity;
 
+        while (_active.Count > capacity)
+        {
+          
+            var last = _active[_active.Count - 1];
+            Remove(last, ownInstances);
+        }
+    }
 }

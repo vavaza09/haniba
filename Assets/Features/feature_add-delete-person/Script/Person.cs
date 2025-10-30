@@ -8,6 +8,16 @@ public class Person : MonoBehaviour
     public int Id => data != null ? data.id : -1;
     public bool IsGhost => data != null && data.kind == PersonKind.Ghost;
 
+    public bool IsSeated { get; private set; } = false;
+
+    [Header("Visuals")]
+    [SerializeField] SpriteRenderer spriteRenderer;
+    [SerializeField] Sprite standingSprite;
+    [SerializeField] Sprite sittingSprite;
+    [SerializeField] RuntimeAnimatorController standingAnim;
+    [SerializeField] RuntimeAnimatorController sittingAnim;
+    [SerializeField] Animator animator;
+
     void Awake()
     {
         if (data == null)
@@ -15,5 +25,29 @@ public class Person : MonoBehaviour
         DebugUtils.LogAllValues(data);
     }
 
-    public string DialogKey => data != null ? data.dialogKey : "";
+    public void OnAddedToTaxi()
+    {
+        IsSeated = true;
+        UpdateVisual();
+    }
+
+    public void OnRemovedFromTaxi()
+    {
+        IsSeated = false;
+        UpdateVisual();
+    }
+
+    void UpdateVisual()
+    {
+        if (spriteRenderer)
+        {
+            spriteRenderer.sprite = IsSeated ? sittingSprite : standingSprite;
+        }
+
+        if (animator)
+        {
+            animator.runtimeAnimatorController = IsSeated ? sittingAnim : standingAnim;
+        }
+    }
+
 }
