@@ -22,7 +22,7 @@ public class SpawnDialogMediator : MonoBehaviour
     // ====== Wiring ======
     void Awake()
     {
-        if (!dialog) dialog = FindObjectOfType<DialogController>();
+        if (!dialog) dialog = FindFirstObjectByType<DialogController>();
 
        
         dialog.OnPickupDecision.AddListener(HandlePickupDecision);
