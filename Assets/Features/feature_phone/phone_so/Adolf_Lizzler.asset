@@ -20,3 +20,5 @@ MonoBehaviour:
   dropoff: Auschwitz-Birkenau
   overrideRatePerKm: 0
   ratePerKm: 4.5
+  personRoad: {fileID: 11400000, guid: 9e2b99fdbb12940489cd471c3c39a3c1, type: 2}
+  transformPrefab: {fileID: 5658611189556291163, guid: db51a709e4077564b8e8cde21b98e72b, type: 3}

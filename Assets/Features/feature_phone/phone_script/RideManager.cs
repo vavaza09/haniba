@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 
 public class RideManager : MonoBehaviour
@@ -15,6 +15,8 @@ public class RideManager : MonoBehaviour
     [Header("Waiting")]
     [SerializeField] float minWait = 6f;
     [SerializeField] float maxWait = 9f;
+
+    [SerializeField] RoadManager roadManager;
 
     int index;
 
@@ -46,39 +48,40 @@ public class RideManager : MonoBehaviour
     {
         float earn = offer.GetEarn(defaultRatePerKm);
 
-        // hide passenger, show accept_pas
         Phone.Hide();
         if (waitPanel) waitPanel.SetActive(false);
+
+        // >>> Begin the person's road sequence
+        if (roadManager && offer.personRoad)
+            roadManager.BeginRide(offer.personRoad);
 
         if (acceptUI)
         {
             acceptUI.Show(offer, earn);
-            // start a watcher that waits for your other code to SetReady(true)
             StartCoroutine(WaitForAcceptReadyThenGoWaiting());
         }
     }
 
     IEnumerator WaitForAcceptReadyThenGoWaiting()
     {
-        // wait until other code calls acceptUI.SetReady(true)
         while (acceptUI != null && !acceptUI.readyToRequestNext)
             yield return null;
 
         if (acceptUI) acceptUI.Hide();
 
-        // now show waiting for 6–9s
+        // Passenger is in  resume default loop
+        if (roadManager) roadManager.ResumeDefaultLoop();
+
+        // Show waiting page for next requests as you already do...
         if (waitPanel)
         {
             waitPanel.SetActive(true);
             waitPanel.transform.SetAsLastSibling();
         }
-
         float wait = Random.Range(minWait, maxWait);
         yield return new WaitForSecondsRealtime(wait);
-
         if (waitPanel) waitPanel.SetActive(false);
 
-        // advance to next passenger
         index++;
         ShowPassenger();
     }
@@ -86,6 +89,11 @@ public class RideManager : MonoBehaviour
     void OnDeclinedOrTimeout(RideOffer offer)
     {
         // passenger panel already hidden by RideOfferUI
+        StartCoroutine(ShowWaitingThenNext());
+    }
+
+    public void StartWaitingThenNext()
+    {
         StartCoroutine(ShowWaitingThenNext());
     }
 
