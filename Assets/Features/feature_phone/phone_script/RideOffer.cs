@@ -17,6 +17,10 @@ public class RideOffer : ScriptableObject
     public bool overrideRatePerKm = false;
     public float ratePerKm = 4.5f;
 
+    [Header("Road")]
+    public PersonRoadSet personRoad;
+    public GameObject transformPrefab;
+
     public float GetEarn(float defaultRatePerKm)
     {
         float rate = overrideRatePerKm ? ratePerKm : defaultRatePerKm;
