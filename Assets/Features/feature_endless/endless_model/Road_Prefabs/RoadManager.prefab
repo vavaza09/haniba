@@ -51,7 +51,7 @@ MonoBehaviour:
   visibleCount: 20
   recycleThreshold: 5
   moveSpeed: 28
-  slowdownRate: 0.2
+  slowdownRate: 0.5
   resumeAccelRate: 10
   resumeAccelTime: 0.6
   isMoving: 1

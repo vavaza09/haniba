@@ -30,8 +30,8 @@ public class RoadTrigger : MonoBehaviour
                 break;
 
             case TriggerType.DestinationStop:
-                manager.ForceStopImmediately();
-                //manager.ResumeDefaultLoop();
+                manager.ForceStopForWait();
+                
                 break;
         }
     }

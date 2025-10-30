@@ -92,6 +92,11 @@ public class RideManager : MonoBehaviour
         StartCoroutine(ShowWaitingThenNext());
     }
 
+    public void StartWaitingThenNext()
+    {
+        StartCoroutine(ShowWaitingThenNext());
+    }
+
     IEnumerator ShowWaitingThenNext()
     {
         if (acceptUI) acceptUI.Hide();

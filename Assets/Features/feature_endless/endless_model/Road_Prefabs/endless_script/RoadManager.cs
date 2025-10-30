@@ -35,6 +35,8 @@ public class RoadManager : MonoBehaviour
 
     private Coroutine resumeBoostCo;
 
+    [SerializeField] private RideManager rm;
+
 
     void Awake()
     {
@@ -134,6 +136,14 @@ public class RoadManager : MonoBehaviour
     {
         isMoving = false;
         currentSpeed = 0f;
+    }
+
+    public void ForceStopForWait()
+    {
+
+        isMoving = false;
+        currentSpeed = 0f;
+        rm.StartWaitingThenNext();
     }
 
     public void BeginRide(PersonRoadSet set)
