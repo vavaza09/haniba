@@ -209,3 +209,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 894995b99dc4b2141a8db41e22662736, type: 2}
+  spriteRenderer: {fileID: 8190392612713728995}
+  standingSprite: {fileID: 21300000, guid: 441877eb97f2dda4080dc7e96b1bbeba, type: 3}
+  sittingSprite: {fileID: 21300000, guid: d6ee178f928e9a44c8ae293c333a107c, type: 3}
+  standingAnim: {fileID: 0}
+  sittingAnim: {fileID: 0}
+  animator: {fileID: 0}

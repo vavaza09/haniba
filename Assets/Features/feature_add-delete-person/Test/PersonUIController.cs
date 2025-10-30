@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿/*
+using UnityEngine;
+
+
 using TMPro; // ถ้าใช้ TextMeshPro
 
 public class PersonUIController : MonoBehaviour
@@ -75,3 +78,4 @@ public class PersonUIController : MonoBehaviour
         else Debug.Log(msg);
     }
 }
+*/

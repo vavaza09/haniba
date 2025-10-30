@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c8c608b1e856e84e8402e054d2d3a66, type: 3}
-  m_Name: P1
+  m_Script: {fileID: 11500000, guid: 138e00eb1ceef29418040ab406ec8fbb, type: 3}
+  m_Name: P1_Profile
   m_EditorClassIdentifier: 
-  id: 0
-  displayName: Vava
-  kind: 0
-  dialogProfile: {fileID: 11400000, guid: 201e6725d0ba0e04f82c25e9782c42fa, type: 2}
+  profileId: 0
+  pickupSet: {fileID: 11400000, guid: 815c29b5198bf1247bceff14be07b5bd, type: 2}
+  rideSet: {fileID: 11400000, guid: 78a4603863d99794aad638a2a2c7738f, type: 2}
