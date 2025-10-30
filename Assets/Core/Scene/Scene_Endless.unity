@@ -599,6 +599,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoadManager
       objectReference: {fileID: 0}
+    - target: {fileID: 7205637767470473896, guid: da4e7253eea2f054796bbd8e2de0b1f4, type: 3}
+      propertyPath: slowdownRate
+      value: 0.7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
