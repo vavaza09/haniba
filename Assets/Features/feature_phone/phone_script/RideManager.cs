@@ -7,72 +7,104 @@ public class RideManager : MonoBehaviour
     [SerializeField] RideDatabase database;
     [SerializeField] float defaultRatePerKm = 4.5f;
 
-
     [Header("UI")]
-    [SerializeField] RideOfferUI Phone;
-    [SerializeField] GameObject waitPanel;
+    [SerializeField] RideOfferUI Phone;          // passenger panel
+    [SerializeField] GameObject waitPanel;       // waiting panel
+    [SerializeField] AcceptedPassengerUI acceptUI; // accept_pas panel
 
-    //[SerializeField]
-    private float minWait = 6f;
-    private float maxWait = 9f;
+    [Header("Waiting")]
+    [SerializeField] float minWait = 6f;
+    [SerializeField] float maxWait = 9f;
 
     int index;
 
-    private void Start()
+    void Start()
     {
         index = 0;
-        ShowNext();
+        if (waitPanel) waitPanel.SetActive(false);
+        if (acceptUI) acceptUI.Hide();
+        ShowPassenger();
     }
 
-    void ShowNext()
+    void ShowPassenger()
     {
-        if (database == null || database.offers == null || index >= database.offers.Count)
-        {
-            return;
-        }
+        if (database == null || database.offers == null || database.offers.Count == 0) return;
+        if (index >= database.offers.Count) index = 0;
+
+        if (waitPanel) waitPanel.SetActive(false);
+        if (acceptUI) acceptUI.Hide();
+
         var offer = database.offers[index];
         float earn = offer.GetEarn(defaultRatePerKm);
 
-        if (waitPanel != null) waitPanel.SetActive(false);
-
         Phone.gameObject.SetActive(true);
+        Phone.transform.SetAsLastSibling();
         Phone.Show(offer, earn, OnAccepted, OnDeclinedOrTimeout);
     }
 
     void OnAccepted(RideOffer offer)
     {
-        Debug.Log($"Ride accepted: {offer.passengerName}");
+        float earn = offer.GetEarn(defaultRatePerKm);
+
+        // hide passenger, show accept_pas
+        Phone.Hide();
+        if (waitPanel) waitPanel.SetActive(false);
+
+        if (acceptUI)
+        {
+            acceptUI.Show(offer, earn);
+            // start a watcher that waits for your other code to SetReady(true)
+            StartCoroutine(WaitForAcceptReadyThenGoWaiting());
+        }
+    }
+
+    IEnumerator WaitForAcceptReadyThenGoWaiting()
+    {
+        // wait until other code calls acceptUI.SetReady(true)
+        while (acceptUI != null && !acceptUI.readyToRequestNext)
+            yield return null;
+
+        if (acceptUI) acceptUI.Hide();
+
+        // now show waiting for 6–9s
+        if (waitPanel)
+        {
+            waitPanel.SetActive(true);
+            waitPanel.transform.SetAsLastSibling();
+        }
+
+        float wait = Random.Range(minWait, maxWait);
+        yield return new WaitForSecondsRealtime(wait);
+
+        if (waitPanel) waitPanel.SetActive(false);
+
+        // advance to next passenger
         index++;
-        ShowNext();
+        ShowPassenger();
     }
 
     void OnDeclinedOrTimeout(RideOffer offer)
     {
-        Debug.Log($"Ride declined or timed out: {offer.passengerName}");
-        index++;
-        StartCoroutine(WaitAndShowNext());
+        // passenger panel already hidden by RideOfferUI
+        StartCoroutine(ShowWaitingThenNext());
     }
 
-    IEnumerator WaitAndShowNext()
+    IEnumerator ShowWaitingThenNext()
     {
-        if (waitPanel != null)
+        if (acceptUI) acceptUI.Hide();
+
+        if (waitPanel)
         {
             waitPanel.SetActive(true);
+            waitPanel.transform.SetAsLastSibling();
         }
+
         float wait = Random.Range(minWait, maxWait);
-        float t = 0f;
+        yield return new WaitForSecondsRealtime(wait);
 
-        while (t < wait)
-        {
-            t += Time.deltaTime;
-            yield return null;
-        }
+        if (waitPanel) waitPanel.SetActive(false);
 
-        if (waitPanel != null)
-        {
-            waitPanel.SetActive(false);
-        }
-        ShowNext();
+        index++;
+        ShowPassenger();
     }
-
 }
