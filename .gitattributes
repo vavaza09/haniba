@@ -1,10 +1,9 @@
 # ใช้ LF ใน repo (ลดปัญหา CRLF)
 * text=auto eol=lf
-
 # ให้ Unity Smart Merge ทำงานกับไฟล์ YAML เหล่านี้
 *.unity    merge=unityyamlmerge
 *.prefab   merge=unityyamlmerge
-*.asset    merge=unityyamlmerge
+*.asset filter=lfs diff=lfs merge=lfs -text
 *.mat      merge=unityyamlmerge
 *.anim     merge=unityyamlmerge
 *.controller merge=unityyamlmerge
@@ -13,7 +12,6 @@
 *.playable merge=unityyamlmerge
 *.physicMaterial merge=unityyamlmerge
 *.meta     merge=unityyamlmerge
-
 # จัดเป็นไบนารี (กัน conflict อ่านไม่ออก)
 *.fbx binary
 *.blend binary
@@ -29,7 +27,6 @@
 *.mp4 binary
 *.ttf binary
 *.otf binary
-
 # ติดตามด้วย Git LFS (แนะนำมากสำหรับไฟล์สื่อ)
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.blend filter=lfs diff=lfs merge=lfs -text
