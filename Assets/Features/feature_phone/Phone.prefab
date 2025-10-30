@@ -2470,6 +2470,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pssengerPanel: {fileID: 2694386669377186578}
+  PhoneFrame: {fileID: 8287177252932015688}
   person_image: {fileID: 5584861155488409285}
   person_name: {fileID: 8683299908605084637}
   person_rating: {fileID: 7941275841016797476}

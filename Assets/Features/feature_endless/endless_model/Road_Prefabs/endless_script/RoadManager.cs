@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class RoadManager : MonoBehaviour
+public class RoadManager : MonoBehaviour, IHasDefaultRun
 {
     // 🔒 Exact tile length you gave: 17.94918 * 4
     const float TILE_LENGTH = 17.94918f * 4f; // 71.79672f
@@ -40,6 +40,7 @@ public class RoadManager : MonoBehaviour
     private Coroutine resumeBoostCo;
 
     [SerializeField] private RideManager rm;
+
 
     void Awake()
     {
@@ -146,6 +147,8 @@ public class RoadManager : MonoBehaviour
     {
         isMoving = false;
         currentSpeed = 0f;
+        //SDM.NotifyEnterPickup();
+
     }
 
     public void ForceStopForWait()
@@ -153,6 +156,12 @@ public class RoadManager : MonoBehaviour
         isMoving = false;
         currentSpeed = 0f;
         if (rm) rm.StartWaitingThenNext();
+    }
+
+    public void DeclineOnLoad()
+    {
+        rm.StartWaitingThenNext();
+        ResumeDefaultLoop();
     }
 
     public void BeginRide(PersonRoadSet set)

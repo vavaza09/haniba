@@ -243,7 +243,7 @@ public class DialogController : MonoBehaviour
             case "DECLINE_PICKUP":
                 rs.accepted = false;
                 OnPickupDecision?.Invoke(id, false);
-                if (spawnTeamOwnsInstances) OnRequestDespawn?.Invoke(id); // ให้ทีม Spawn ลบคนรอ
+                OnRequestDespawn?.Invoke(id); // ให้ทีม Spawn ลบคนรอ
                 break;
 
                 // เพิ่ม hook เฉพาะทางได้อีกที่นี่ (EXORCISE_NOW, PAY_TIP, ...)

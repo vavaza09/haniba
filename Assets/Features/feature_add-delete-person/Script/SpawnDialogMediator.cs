@@ -4,7 +4,9 @@ using UnityEngine.Events;
 public class SpawnDialogMediator : MonoBehaviour
 {
     [Header("Refs")]
-    [SerializeField] private DialogController dialog;   
+    [SerializeField] private DialogController dialog;
+    [SerializeField] private RoadManager roadManager;
+    [SerializeField] private SpawnManager spawnManager;
 
     [Header("Policy")]
     [Tooltip("กันเรียกซ้ำถี่ ๆ จาก collider/trigger")]
@@ -13,22 +15,27 @@ public class SpawnDialogMediator : MonoBehaviour
     [Header("Events to SPAWN (commands)")]
     public UnityEvent<int> OnRequestDespawn;  
     public UnityEvent<int> OnJobCompleted;    
-    public UnityEvent<int> OnGhostRefused;    
+    public UnityEvent<int> OnGhostRefused;
 
-  
+    [SerializeField] private MonoBehaviour targetDefaultRunner;
+
+
     private Person _waitingAtStop;       
     private float _lastPickupTime = -999f;
 
     // ====== Wiring ======
     void Awake()
     {
-        if (!dialog) dialog = FindObjectOfType<DialogController>();
+        if (!dialog) dialog = FindFirstObjectByType<DialogController>();
 
        
         dialog.OnPickupDecision.AddListener(HandlePickupDecision);
         dialog.OnRequestDespawn.AddListener(RequestDespawn); 
         dialog.OnJobCompleted.AddListener(JobCompleted);     
-        dialog.OnGhostRefused.AddListener(GhostRefused);     
+        dialog.OnGhostRefused.AddListener(GhostRefused);
+
+        if (!spawnManager) spawnManager = FindFirstObjectByType<SpawnManager>();
+        dialog.OnRequestDespawn.AddListener(spawnManager.Despawn);
     }
 
     void OnDestroy()
@@ -85,18 +92,39 @@ public class SpawnDialogMediator : MonoBehaviour
     // ผู้เล่นตัดสินใจตอน pickup
     private void HandlePickupDecision(int personId, bool accepted)
     {
-        // ถ้าคือคนที่เรากำลัง track อยู่ → เคลียร์ state
         if (_waitingAtStop && _waitingAtStop.Data && _waitingAtStop.Data.id == personId)
-        {
             _waitingAtStop = null;
+
+        if (accepted)
+        {
+            Debug.Log($"[Mediator] Player accepted pickup for {personId}");
+            TriggerDefaultRun();
+        }
+        else
+        {
+            roadManager.DeclineOnLoad();
+            Debug.Log(personId);
+            //RequestDespawn(personId);
+        }
+    }
+
+    private void TriggerDefaultRun()
+    {
+        if (targetDefaultRunner == null)
+        {
+            // หาอัตโนมัติในซีน ถ้ายังไม่ได้ตั้ง
+            targetDefaultRunner = FindFirstObjectByType<MonoBehaviour>();
         }
 
-        if (!accepted)
+        if (targetDefaultRunner is IHasDefaultRun runner)
         {
-            // ไม่รับ → ให้ Spawn ลบตัวรอ
-            RequestDespawn(personId);
+            runner.ResumeDefaultLoop();
+            Debug.Log("[Mediator] Called DefaultRun() successfully");
         }
-        // ถ้ารับ: ตัวเดิมจะขึ้นรถแล้ว DialogController จะไปเปิด ride ต่อเอง
+        else
+        {
+            Debug.LogWarning("[Mediator] No component implementing IHasDefaultRun found!");
+        }
     }
 
     private void RequestDespawn(int personId)
