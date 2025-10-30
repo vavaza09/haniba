@@ -27,6 +27,7 @@ public class RoadTrigger : MonoBehaviour
                 manager.ForceStopImmediately();
                 // After a pause, resume the default loop again
                 //manager.ResumeDefaultLoop();
+                gameObject.GetComponent<Collider>().enabled = false;
                 break;
 
             case TriggerType.DestinationStop:
