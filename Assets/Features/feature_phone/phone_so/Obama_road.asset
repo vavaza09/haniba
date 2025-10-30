@@ -1,17 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea1b43e9bd1f99e40b3171d1798020c9, type: 3}
-  m_Name: Obama_road
-  m_EditorClassIdentifier: 
-  firstTileOnce: {fileID: 3404309206426068386, guid: da3ba7e97a9b87742a54b68a612a160b, type: 3}
-  busStopTileOnce: {fileID: 3743432316044482658, guid: 58277d73c0cf4054eaf575a233da5d29, type: 3}
-  destinationTileOnce: {fileID: 5978305298938691363, guid: ff4b4fcf987cc3b489886cec44bc360f, type: 3}
+version https://git-lfs.github.com/spec/v1
+oid sha256:7f30a722e188c25ae68eec4c8a37e4443d25c39caa6dd7ff2ba727cac0be1857
+size 695

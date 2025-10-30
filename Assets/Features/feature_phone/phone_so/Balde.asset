@@ -1,24 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9db10d7780fbf744b44c815b07849e1, type: 3}
-  m_Name: Balde
-  m_EditorClassIdentifier: 
-  passengerName: Balde Arough
-  rating: 4.7
-  passengerPic: {fileID: 21300000, guid: d6ee178f928e9a44c8ae293c333a107c, type: 3}
-  distance: 12.4
-  pickup: begja
-  dropoff: Golez
-  overrideRatePerKm: 0
-  ratePerKm: 4.5
-  personRoad: {fileID: 11400000, guid: 754d4d73bc39c5d4daf7e8a4cccd9bd5, type: 2}
-  transformPrefab: {fileID: 4013244952908038904, guid: 02f6681a9168bb34ea81e141380c670f, type: 3}
+version https://git-lfs.github.com/spec/v1
+oid sha256:482f3a741da0a3a4fcc98d2a46b50c05faaf682fe24c2f5babf147cf24be5185
+size 792

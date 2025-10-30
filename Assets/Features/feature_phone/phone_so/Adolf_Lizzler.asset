@@ -1,24 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9db10d7780fbf744b44c815b07849e1, type: 3}
-  m_Name: Adolf_Lizzler
-  m_EditorClassIdentifier: 
-  passengerName: Adolf Lizzler
-  rating: 3.9
-  passengerPic: {fileID: 21300000, guid: ad87fa0d2d14a7d46b29c583d3688978, type: 3}
-  distance: 21
-  pickup: Berlin-wall
-  dropoff: Auschwitz-Birkenau
-  overrideRatePerKm: 0
-  ratePerKm: 4.5
-  personRoad: {fileID: 11400000, guid: 9e2b99fdbb12940489cd471c3c39a3c1, type: 2}
-  transformPrefab: {fileID: 4013244952908038904, guid: d7312980026c92042a73033ba21eadc0, type: 3}
+version https://git-lfs.github.com/spec/v1
+oid sha256:20817bf06fca5f3173efef856e503f0e3078dfda3c266548766126b0efbb1ab5
+size 818
