@@ -37,6 +37,9 @@ public class RoadManager : MonoBehaviour
 
     [SerializeField] private RideManager rm;
 
+    [SerializeField]  private RideOffer RO;
+    SpawnDialogMediator SDM;
+
 
     void Awake()
     {
@@ -136,6 +139,8 @@ public class RoadManager : MonoBehaviour
     {
         isMoving = false;
         currentSpeed = 0f;
+        //SDM.NotifyEnterPickup();
+       
     }
 
     public void ForceStopForWait()

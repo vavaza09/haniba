@@ -316,6 +316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rideOffer: {fileID: 11400000, guid: 3b0b8921ea809f24a996c8cec4c1f764, type: 2}
+  object3d: {fileID: 0}
 --- !u!1 &4173976782029594258
 GameObject:
   m_ObjectHideFlags: 0

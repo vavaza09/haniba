@@ -15,7 +15,7 @@ MonoBehaviour:
   setId: ride_P1
   entryNodeId: intro
   nodes:
-  - nodeId: halfway_chat
+  - nodeId: intro
     lines:
     - speaker: Vava
       text: Thank you for cuming
@@ -47,8 +47,4 @@ MonoBehaviour:
       text: Ok sorry
     choices: []
     autoNextNodeId: 
-  rideTriggers:
-  - type: 2
-    threshold: 30
-    eventKey: 
-    entryNodeId: 
+  rideTriggers: []
