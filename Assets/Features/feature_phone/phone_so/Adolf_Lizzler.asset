@@ -21,4 +21,4 @@ MonoBehaviour:
   overrideRatePerKm: 0
   ratePerKm: 4.5
   personRoad: {fileID: 11400000, guid: 9e2b99fdbb12940489cd471c3c39a3c1, type: 2}
-  transformPrefab: {fileID: 5658611189556291163, guid: db51a709e4077564b8e8cde21b98e72b, type: 3}
+  transformPrefab: {fileID: 4013244952908038904, guid: d7312980026c92042a73033ba21eadc0, type: 3}
