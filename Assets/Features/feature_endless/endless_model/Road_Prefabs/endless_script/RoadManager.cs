@@ -41,7 +41,6 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
 
     [Header("ref")]
     [SerializeField] private RideManager rm;
-    [SerializeField] SpawnDialogMediator SDM;
 
 
     void Awake()
