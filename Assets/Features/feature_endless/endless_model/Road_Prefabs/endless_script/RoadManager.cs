@@ -39,6 +39,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
     private int defaultIndex = 0;
     private Coroutine resumeBoostCo;
 
+    [Header("ref")]
     [SerializeField] private RideManager rm;
 
 
@@ -155,6 +156,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
     {
         isMoving = false;
         currentSpeed = 0f;
+        SDM.NotifyReachedDropoff(SDM.GetCurrentPassenger());
         if (rm) rm.StartWaitingThenNext();
     }
 
@@ -220,7 +222,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
         if (set == null) return;
         InjectTileOnce(set.destinationTileOnce);
     }
-
+    
     public void InjectTileOnce(GameObject prefab)
     {
         if (prefab) injectOnce.Enqueue(prefab);

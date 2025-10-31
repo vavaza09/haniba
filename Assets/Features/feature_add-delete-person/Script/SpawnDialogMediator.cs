@@ -18,7 +18,7 @@ public class SpawnDialogMediator : MonoBehaviour
     public UnityEvent<int> OnGhostRefused;
 
     [SerializeField] private MonoBehaviour targetDefaultRunner;
-
+    public Person GetCurrentPassenger() => dialog.CurrentPassenger;
 
     private Person _waitingAtStop;       
     private float _lastPickupTime = -999f;
@@ -33,6 +33,7 @@ public class SpawnDialogMediator : MonoBehaviour
         dialog.OnRequestDespawn.AddListener(RequestDespawn); 
         dialog.OnJobCompleted.AddListener(JobCompleted);     
         dialog.OnGhostRefused.AddListener(GhostRefused);
+        dialog.OnRideDialogEnded.AddListener(HandleRideEnded);
 
         if (!spawnManager) spawnManager = FindFirstObjectByType<SpawnManager>();
         dialog.OnRequestDespawn.AddListener(spawnManager.Despawn);
@@ -45,6 +46,7 @@ public class SpawnDialogMediator : MonoBehaviour
         dialog.OnRequestDespawn.RemoveListener(RequestDespawn);
         dialog.OnJobCompleted.RemoveListener(JobCompleted);
         dialog.OnGhostRefused.RemoveListener(GhostRefused);
+        dialog.OnRideDialogEnded.RemoveListener(HandleRideEnded);
     }
 
     // ====== API ที่ "ฝั่ง Spawn" เรียกเข้ามา ======
@@ -87,6 +89,8 @@ public class SpawnDialogMediator : MonoBehaviour
         dialog.NotifyReachedDropoff(p);
     }
 
+    
+
     // ====== Handlers (จาก DialogController → ส่งกลับหา Spawn) ======
 
     // ผู้เล่นตัดสินใจตอน pickup
@@ -108,6 +112,31 @@ public class SpawnDialogMediator : MonoBehaviour
         }
     }
 
+    private void HandleRideEnded(int personId, bool end)
+    {
+        if (!end) return;
+            var p = dialog.CurrentPassenger;
+            Debug.Log(p);
+            if (p == null)
+            {
+                Debug.LogWarning("[Mediator] Ride ended but CurrentPassenger is null.");
+                return;
+            }
+            var set = p.Data?.roadSet;
+            Debug.Log(set);
+            if (set == null)
+            {
+                Debug.LogWarning($"[Mediator] {p.name} ไม่มี roadSet สำหรับ ShowDestination");
+                return;
+            }
+
+            if (!roadManager)
+                roadManager = FindFirstObjectByType<RoadManager>();
+
+            if (roadManager)
+                roadManager.ShowDestinationAndStop(set);
+    }
+
     private void TriggerDefaultRun()
     {
         if (targetDefaultRunner == null)
@@ -126,6 +155,8 @@ public class SpawnDialogMediator : MonoBehaviour
             Debug.LogWarning("[Mediator] No component implementing IHasDefaultRun found!");
         }
     }
+
+
 
     private void RequestDespawn(int personId)
     {

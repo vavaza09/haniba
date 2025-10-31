@@ -32,7 +32,7 @@ public class RoadTrigger : MonoBehaviour
 
             case TriggerType.DestinationStop:
                 manager.ForceStopForWait();
-                
+                gameObject.GetComponent<Collider>().enabled = false;
                 break;
         }
     }
