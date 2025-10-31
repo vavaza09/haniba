@@ -1,26 +1,32 @@
-using UnityEngine;
-using System.Collections;               // added for IEnumerator/Coroutine
+﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class RoadManager : MonoBehaviour, IHasDefaultRun
 {
+    // 🔒 Exact tile length you gave: 17.94918 * 4
+    const float TILE_LENGTH = 17.94918f * 4f; // 71.79672f
+
     [Header("Default Loop Tiles")]
     [Tooltip("These tiles loop endlessly when no special ride tiles are active.")]
     [SerializeField] List<GameObject> defaultLoopPrefabs = new List<GameObject>();
 
-    [Header("Spawn/Spacing")]
-    [SerializeField] float spacingStep = 10f;       // distance between pieces
+    [Header("Spawn/Spacing (auto-locked to tile length)")]
+    [SerializeField] float spacingStep = TILE_LENGTH; // will be forced to TILE_LENGTH in Awake
     [SerializeField] float yOffset = 0f;
-    [SerializeField] int visibleCount = 20;         // number of tiles active
-    [SerializeField] float recycleThreshold = 10f;  // when to recycle oldest piece
+    [SerializeField] int visibleCount = 20;
+
+    [Header("Recycle")]
+    [Tooltip("Recycle when the HEAD tile has passed behind this Z by this amount (in local space).")]
+    [SerializeField] float recycleThreshold = TILE_LENGTH; // safe default: one tile length
 
     [Header("Motion")]
-    [SerializeField] float moveSpeed = 8f;
-    [SerializeField] float slowdownRate = 2f;       // global lerp rate used everywhere
+    [SerializeField] public float moveSpeed = 8f;
+    [SerializeField] float slowdownRate = 2f;
 
     [Header("Resume Boost (only when resuming default loop)")]
-    [SerializeField] float resumeAccelRate = 10f;   // temporary faster ramp
-    [SerializeField] float resumeAccelTime = 0.6f;  // how long to keep the fast ramp
+    [SerializeField] float resumeAccelRate = 10f;
+    [SerializeField] float resumeAccelTime = 0.6f;
 
     [Header("Runtime")]
     public bool isMoving = true;
@@ -29,45 +35,42 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
     readonly Queue<GameObject> injectOnce = new Queue<GameObject>();
 
     private bool allowDefaultLoop = true;
-    private float tailLocalZ;
     private float currentSpeed = 0f;
     private int defaultIndex = 0;
-
     private Coroutine resumeBoostCo;
 
+    [Header("ref")]
     [SerializeField] private RideManager rm;
-
-
+    [SerializeField] SpawnDialogMediator SDM;
 
 
     void Awake()
     {
-        if (spacingStep <= 0f) spacingStep = 10f;
-        if (recycleThreshold <= 0f) recycleThreshold = spacingStep;
+        // Lock spacing and recycle precisely to the tile size you specified
+        spacingStep = TILE_LENGTH;
+        if (recycleThreshold <= 0f) recycleThreshold = TILE_LENGTH;
 
         if (defaultLoopPrefabs == null || defaultLoopPrefabs.Count == 0)
             Debug.LogWarning("[RoadManager] No defaultLoopPrefabs set!");
 
-        // Fill initial road
+        // Build initial strip at exact Z slots: 0, L, 2L, 3L, ...
         for (int i = 0; i < visibleCount; i++)
             SpawnNextPiece(initialBuild: true);
 
         currentSpeed = moveSpeed;
     }
 
-
     void FixedUpdate()
     {
-        // Smooth acceleration/deceleration with a single rate (temporarily boosted on resume)
+        // Smooth accel/decel
         float targetSpeed = isMoving ? moveSpeed : 0f;
         currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.fixedDeltaTime * slowdownRate);
 
-        // Move all active tiles
+        // Move everything backwards along -forward (endless runner style)
         Vector3 delta = -transform.forward * currentSpeed * Time.fixedDeltaTime;
-        foreach (Transform t in active)
-            t.position += delta;
+        foreach (Transform t in active) t.position += delta;
 
-        // Safety guard: if queue empty, try to spawn once
+        // If nothing active, try spawn once
         if (active.Count == 0)
         {
             if (injectOnce.Count > 0 || allowDefaultLoop)
@@ -75,22 +78,19 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
             if (active.Count == 0) return;
         }
 
-        // Check oldest piece
+        // Recycle based on HEAD tile's local Z passing behind threshold
         Transform head = active.Peek();
         float headLocalZ = transform.InverseTransformPoint(head.position).z;
-
         bool shouldRecycle = headLocalZ < -recycleThreshold;
         bool canSpawnNext = (injectOnce.Count > 0) || allowDefaultLoop;
 
-        // Recycle only if we can spawn a replacement
         if (shouldRecycle && canSpawnNext)
         {
             head = active.Dequeue();
-            Destroy(head.gameObject); // pooling can replace this later
+            Destroy(head.gameObject); // swap to pooling if needed
             SpawnNextPiece(initialBuild: false);
         }
     }
-
 
     void SpawnNextPiece(bool initialBuild)
     {
@@ -117,20 +117,31 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
         var t = go.transform;
         t.localRotation = Quaternion.identity;
 
+        // Exact placement:
+        // - For the very first build, place by slot index i * TILE_LENGTH (no accumulation drift).
+        // - For continuous spawns, place exactly after the current LAST tile's local Z + TILE_LENGTH.
+        float z;
+
         if (initialBuild)
         {
-            t.localPosition = new Vector3(0f, yOffset, active.Count * spacingStep);
-            tailLocalZ = (active.Count) * spacingStep;
+            // slot index is current count (0..visibleCount-1) BEFORE enqueue
+            z = active.Count * TILE_LENGTH;
         }
         else
         {
-            tailLocalZ += spacingStep;
-            t.localPosition = new Vector3(0f, yOffset, tailLocalZ);
+            // find last tile's local Z
+            Transform last = null;
+            foreach (var piece in active) last = piece;
+            float lastLocalZ = (last != null)
+                ? transform.InverseTransformPoint(last.position).z
+                : active.Count * TILE_LENGTH; // fallback, should not happen
+
+            z = lastLocalZ + TILE_LENGTH;
         }
 
+        t.localPosition = new Vector3(0f, yOffset, z);
         active.Enqueue(t);
     }
-
 
     public void SetMoving(bool state) => isMoving = state;
 
@@ -144,10 +155,10 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
 
     public void ForceStopForWait()
     {
-
         isMoving = false;
         currentSpeed = 0f;
-        rm.StartWaitingThenNext();
+        SDM.NotifyReachedDropoff(SDM.GetCurrentPassenger());
+        if (rm) rm.StartWaitingThenNext();
     }
 
     public void DeclineOnLoad()
@@ -160,30 +171,33 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
     {
         if (set == null) return;
 
-        allowDefaultLoop = false; // stop default spawning
+        allowDefaultLoop = false; // stop default spawning (we'll inject)
         InjectTilesOnce(new[] { set.firstTileOnce, set.busStopTileOnce });
         isMoving = true;
     }
 
-
     public void ResumeDefaultLoop()
     {
-        // Re-anchor tail to the last active piece so spacing is tight
+        // Re-anchor tail Z to the last active piece's local Z, so next spawn is tight
         if (active.Count > 0)
         {
             Transform last = null;
             foreach (var piece in active) last = piece;
             if (last != null)
-                tailLocalZ = transform.InverseTransformPoint(last.position).z;
+            {
+                // Optional snap of LAST to the nearest slot to remove drift entirely:
+                float lastLocalZ = transform.InverseTransformPoint(last.position).z;
+                float snapped = Mathf.Round(lastLocalZ / TILE_LENGTH) * TILE_LENGTH;
+                Vector3 lp = last.localPosition; lp.z = snapped; last.localPosition = lp;
+            }
         }
 
         allowDefaultLoop = true;
 
-        // start from rest
+        // start from rest + boost to feel snappy
         currentSpeed = 0f;
         isMoving = true;
 
-        // kick a short acceleration boost (only affects the resume moment)
         if (resumeBoostCo != null) StopCoroutine(resumeBoostCo);
         resumeBoostCo = StartCoroutine(BoostResumeAcceleration());
     }
@@ -191,10 +205,9 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
     IEnumerator BoostResumeAcceleration()
     {
         float original = slowdownRate;
-        slowdownRate = resumeAccelRate; // faster ramp
+        slowdownRate = resumeAccelRate;
         float elapsed = 0f;
 
-        // keep the boost for a short window, or until we're basically at target speed
         while (elapsed < resumeAccelTime && isMoving && currentSpeed < moveSpeed * 0.98f)
         {
             elapsed += Time.deltaTime;
@@ -210,7 +223,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
         if (set == null) return;
         InjectTileOnce(set.destinationTileOnce);
     }
-
+    
     public void InjectTileOnce(GameObject prefab)
     {
         if (prefab) injectOnce.Enqueue(prefab);

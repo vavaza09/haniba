@@ -7,4 +7,5 @@ public class PersonData : ScriptableObject
     public string displayName;
     public PersonKind kind;
     public DialogProfile dialogProfile;
+    public PersonRoadSet roadSet;
 }

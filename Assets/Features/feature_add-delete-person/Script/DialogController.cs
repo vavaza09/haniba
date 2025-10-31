@@ -24,8 +24,9 @@ public class DialogController : MonoBehaviour
     public UnityEvent<int> OnRequestDespawn;       
     public UnityEvent<int> OnJobCompleted;          
     public UnityEvent<int> OnGhostRefused;
+    public UnityEvent<int, bool> OnRideDialogEnded;
 
-   
+
     [Header("Ride timing")]
     [SerializeField] private float rideStartDelay = 5f;  
     [SerializeField] private string rideFirstEntryId = ""; 
@@ -154,6 +155,11 @@ public class DialogController : MonoBehaviour
         }
 
         ui.Close(() => _isPlaying = false);
+
+        if (!isPickup)
+        {
+            OnRideDialogEnded?.Invoke(id, true);
+        }
     }
 
     private List<DialogueChoice> FilterChoices(DialogueNode node, PassengerRunState rs, bool isGhost)
