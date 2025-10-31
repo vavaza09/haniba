@@ -7,7 +7,7 @@ public static class DebugUtils
     {
         if (obj == null)
         {
-            Debug.LogWarning("Object is null!");
+            Debug.LogWarning("Object is null!"); 
             return;
         }
 

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: bf061e0c85904b74f987fffd08e2a445
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320654
+  packageName: LPEnviroment - Optimized Tree Shaders
+  packageVersion: 1.0.3
+  assetPath: Assets/LPEnviroment/URP.unitypackage
+  uploadId: 762655

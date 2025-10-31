@@ -17,6 +17,7 @@ public class Person : MonoBehaviour
     [SerializeField] RuntimeAnimatorController standingAnim;
     [SerializeField] RuntimeAnimatorController sittingAnim;
     [SerializeField] Animator animator;
+    
 
     void Awake()
     {
