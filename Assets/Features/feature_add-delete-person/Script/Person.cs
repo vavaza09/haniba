@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Person : MonoBehaviour
 {
@@ -24,11 +25,13 @@ public class Person : MonoBehaviour
         if (data == null)
             Debug.LogError($"{name}: PersonData is not assigned on prefab!", this);
         DebugUtils.LogAllValues(data);
+        transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
     }
 
     public void OnAddedToTaxi()
     {
         IsSeated = true;
+        transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
         UpdateVisual();
     }
 

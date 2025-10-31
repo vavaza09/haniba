@@ -465,7 +465,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba9218e1dd00131448354b6bdeab7d6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rideOffer: {fileID: 11400000, guid: 3c081cc9d87fbbd469eb0e303d883091, type: 2}
+  rideOffer: {fileID: 0}
+  rideDatabase: {fileID: 11400000, guid: 63346fe90486a9548b4d15b13e50823e, type: 2}
+  rideManager: {fileID: 0}
+  cloneRideOfferAtRuntime: 1
   playerTag: Player
 --- !u!1 &3743432316044482658
 GameObject:

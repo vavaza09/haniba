@@ -3,12 +3,17 @@ using UnityEngine;
 public class CamManage : MonoBehaviour
 {
     [Header("Cameras")]
-    public Camera playerCamera;          // your normal camera (has CameraMousePan)
-    public Camera mirrorCamera;          // the alt camera to show when zoom starts over the mirror
+    public Camera playerCamera;          // normal camera (has CameraMousePan)
+    public Camera mirrorCamera;          // alt camera when zoom starts over mirror
+    public Camera sideCamera;            // new: side camera (manual exit only)
 
-    [Header("Disble objcct while in mirror mode")]
+    [Header("Disable objects while in mirror mode")]
     [Tooltip("GameObjects to SetActive(false) while mirror mode is on")]
     public GameObject[] disableOnMirrorMode;
+
+    [Header("Disable objects while in side mode")]
+    [Tooltip("Optional: GameObjects to SetActive(false) while side mode is on")]
+    public GameObject[] disableOnSideMode;
 
     [Header("Mirror detection")]
     public float maxRayDistance = 5f;
@@ -16,12 +21,23 @@ public class CamManage : MonoBehaviour
     public string mirrorTag = "Mirror";
     public LayerMask mirrorLayer;        // used if useTag == false
 
+    [Header("Side detection")]
+    public float sideMaxRayDistance = 5f;
+    public bool sideUseTag = true;
+    public string sideTag = "SideCam";
+    public LayerMask sideLayer;          // used if sideUseTag == false
+
     [Header("Blink")]
-    public BlinkOverlay blink;           // assign in Inspector (optional — will auto-create)
+    public BlinkOverlay blink;           // assign in Inspector (optional — auto-create)
 
     private CameraMousePan playerPan;    // taken from playerCamera
+
     private bool mirrorMode;
+    private bool sideMode;
     private bool transitionBusy;         // prevents double-triggers during blink
+
+    // Permission gate for side cam
+    public bool sidePermission;
 
     void Awake()
     {
@@ -45,10 +61,19 @@ public class CamManage : MonoBehaviour
             enabled = false; return;
         }
 
-        // Start with player cam rendering, mirror cam off
+        // sideCamera is optional; only used if assigned
+        if (!sideCamera)
+        {
+            Debug.LogWarning("CamManage: sideCamera not assigned. Side mode will be disabled.");
+        }
+
+        // Start with player cam rendering, others off
         playerCamera.enabled = true;
         mirrorCamera.enabled = false;
-        SetHidden(false);
+        if (sideCamera) sideCamera.enabled = false;
+
+        SetHidden(disableOnMirrorMode, false);
+        SetHidden(disableOnSideMode, false);
 
         // Find or auto-create a BlinkOverlay if not assigned
         if (!blink)
@@ -80,21 +105,34 @@ public class CamManage : MonoBehaviour
         }
     }
 
+    // ========================
+    // Zoom event handlers
+    // ========================
     void HandleZoomStart()
     {
-        if (transitionBusy || mirrorMode) return;   // only from origin camera
+        if (transitionBusy) return;
+        if (mirrorMode || sideMode) return; // only from origin camera
 
-        // Only switch if mouse is currently pointing at the mirror
+        // PRIORITY: Side cam first (if allowed), then mirror.
+        if (sideCamera && sidePermission && IsMouseOverSide())
+        {
+            transitionBusy = true;
+            blink.Blink(() =>
+            {
+                EnterSideMode();
+            });
+            Invoke(nameof(ClearBusyAfterBlink), blink.fadeOut + blink.holdBlack + blink.fadeIn + 0.02f);
+            return;
+        }
+
+        // Mirror fallback
         if (IsMouseOverMirror())
         {
             transitionBusy = true;
-            // Fade to black -> swap -> fade back
             blink.Blink(() =>
             {
                 EnterMirrorMode();
             });
-
-            // Clear busy slightly after the fade finishes
             Invoke(nameof(ClearBusyAfterBlink), blink.fadeOut + blink.holdBlack + blink.fadeIn + 0.02f);
         }
     }
@@ -102,28 +140,38 @@ public class CamManage : MonoBehaviour
     void HandleZoomEnd()
     {
         if (transitionBusy) return;
-        if (!mirrorMode) return;
 
-        transitionBusy = true;
-        blink.Blink(() =>
+        // Mirror mode auto-exits on unzoom (old behavior)
+        if (mirrorMode)
         {
-            ExitMirrorMode();
-        });
+            transitionBusy = true;
+            blink.Blink(() =>
+            {
+                ExitMirrorMode();
+            });
+            Invoke(nameof(ClearBusyAfterBlink), blink.fadeOut + blink.holdBlack + blink.fadeIn + 0.02f);
+        }
 
-        Invoke(nameof(ClearBusyAfterBlink), blink.fadeOut + blink.holdBlack + blink.fadeIn + 0.02f);
+        // Side mode: DO NOTHING on unzoom.
+        // Must call ExitSideMode() / ExitSideModeWithBlink() manually.
     }
 
     void ClearBusyAfterBlink() => transitionBusy = false;
 
+    // ========================
+    // Mode switches
+    // ========================
     void EnterMirrorMode()
     {
         mirrorMode = true;
+        sideMode = false;
 
-        // Toggle which camera renders
         playerCamera.enabled = false;
+        if (sideCamera) sideCamera.enabled = false;
         mirrorCamera.enabled = true;
 
-        SetHidden(true);
+        SetHidden(disableOnSideMode, false);
+        SetHidden(disableOnMirrorMode, true);
     }
 
     void ExitMirrorMode()
@@ -131,15 +179,69 @@ public class CamManage : MonoBehaviour
         mirrorMode = false;
 
         mirrorCamera.enabled = false;
+        // Go back to player cam unless side mode is on (it isn't here)
         playerCamera.enabled = true;
 
-        SetHidden(false);
+        SetHidden(disableOnMirrorMode, false);
     }
 
+    void EnterSideMode()
+    {
+        if (!sideCamera) return;
+
+        sideMode = true;
+        mirrorMode = false;
+
+        playerCamera.enabled = false;
+        mirrorCamera.enabled = false;
+        sideCamera.enabled = true;
+
+        SetHidden(disableOnMirrorMode, false);
+        SetHidden(disableOnSideMode, true);
+    }
+
+    public void ExitSideMode()
+    {
+        if (!sideMode) return;
+
+        sideMode = false;
+
+        if (sideCamera) sideCamera.enabled = false;
+        // Return to player cam (explicit exit only)
+        playerCamera.enabled = true;
+
+        SetHidden(disableOnSideMode, false);
+    }
+
+    public void ExitSideModeWithBlink()
+    {
+        if (transitionBusy || !sideMode) return;
+
+        transitionBusy = true;
+        blink.Blink(() =>
+        {
+            ExitSideMode();
+        });
+        Invoke(nameof(ClearBusyAfterBlink), blink.fadeOut + blink.holdBlack + blink.fadeIn + 0.02f);
+    }
+
+    // ========================
+    // Permission API for side cam
+    // ========================
+    public void SetSidePermission(bool allowed)
+    {
+        sidePermission = allowed;
+    }
+
+    public bool GetSidePermission() => sidePermission;
+
+    // ========================
+    // Detection
+    // ========================
     bool IsMouseOverMirror()
     {
-        // Only raycast when on the origin camera (not in mirror mode, not during transition)
-        if (mirrorMode || transitionBusy || !playerCamera.enabled) return false;
+        // Only raycast when on the origin camera
+        if (mirrorMode || sideMode || transitionBusy || !playerCamera.enabled) return false;
 
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -156,12 +258,35 @@ public class CamManage : MonoBehaviour
             return ((1 << hit.collider.gameObject.layer) & mirrorLayer) != 0;
     }
 
-    void SetHidden(bool hidden)
+    bool IsMouseOverSide()
     {
-        if (disableOnMirrorMode == null) return;
-        foreach (var go in disableOnMirrorMode)
+        // Only raycast when on the origin camera
+        if (mirrorMode || sideMode || transitionBusy || !playerCamera.enabled) return false;
+
+        Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        bool hitSomething = sideUseTag
+            ? Physics.Raycast(ray, out hit, sideMaxRayDistance, ~0, QueryTriggerInteraction.Ignore)
+            : Physics.Raycast(ray, out hit, sideMaxRayDistance, sideLayer, QueryTriggerInteraction.Ignore);
+
+        if (!hitSomething) return false;
+
+        if (sideUseTag)
+            return hit.collider.CompareTag(sideTag);
+        else
+            return ((1 << hit.collider.gameObject.layer) & sideLayer) != 0;
+    }
+
+    // ========================
+    // Helpers
+    // ========================
+    void SetHidden(GameObject[] list, bool hidden)
+    {
+        if (list == null) return;
+        foreach (var go in list)
         {
-            if (go) go.SetActive(!hidden); // hide while mirrorMode = true
+            if (go) go.SetActive(!hidden);
         }
     }
 }

@@ -41,6 +41,8 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
 
     [Header("ref")]
     [SerializeField] private RideManager rm;
+    [SerializeField] private SpawnDialogMediator SDM;
+    [SerializeField] private DashAndBodySim DB;
 
 
     void Awake()
@@ -148,6 +150,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
     {
         isMoving = false;
         currentSpeed = 0f;
+        DB.CarIdle();
         //SDM.NotifyEnterPickup();
 
     }
@@ -157,6 +160,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
         isMoving = false;
         currentSpeed = 0f;
         SDM.NotifyReachedDropoff(SDM.GetCurrentPassenger());
+        DB.CarIdle();
         if (rm) rm.StartWaitingThenNext();
     }
 
@@ -173,6 +177,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
         allowDefaultLoop = false; // stop default spawning (we'll inject)
         InjectTilesOnce(new[] { set.firstTileOnce, set.busStopTileOnce });
         isMoving = true;
+        DB.CarGo();
     }
 
     public void ResumeDefaultLoop()
@@ -189,6 +194,7 @@ public class RoadManager : MonoBehaviour, IHasDefaultRun
                 float snapped = Mathf.Round(lastLocalZ / TILE_LENGTH) * TILE_LENGTH;
                 Vector3 lp = last.localPosition; lp.z = snapped; last.localPosition = lp;
             }
+            DB.CarGo();
         }
 
         allowDefaultLoop = true;

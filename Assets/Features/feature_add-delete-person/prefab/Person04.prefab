@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 1b0e15f425b6abc4b8f71c13f151aca3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4f189167c8f46b343a29419464e55d1f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -96,10 +96,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3553521775625480075}
-  - component: {fileID: 8720261317121244141}
   - component: {fileID: 9212815419882043231}
   - component: {fileID: 5669439769727579973}
   - component: {fileID: 450658647847599961}
+  - component: {fileID: 1856321419481264929}
   m_Layer: 0
   m_Name: Person04
   m_TagString: Untagged
@@ -117,39 +117,12 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6606523991611092286}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &8720261317121244141
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4013244952908038904}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!65 &9212815419882043231
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -209,9 +182,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: d1f65b71646d2e6429f77420425984be, type: 2}
-  spriteRenderer: {fileID: 0}
-  standingSprite: {fileID: 0}
-  sittingSprite: {fileID: 0}
+  spriteRenderer: {fileID: 8190392612713728995}
+  standingSprite: {fileID: 21300000, guid: 4f189167c8f46b343a29419464e55d1f, type: 3}
+  sittingSprite: {fileID: 21300000, guid: c4e93e60e3d03b942a4992bfbfa1862f, type: 3}
   standingAnim: {fileID: 0}
   sittingAnim: {fileID: 0}
   animator: {fileID: 0}
+--- !u!114 &1856321419481264929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4013244952908038904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb304c42b286edc4db3e251c48f37426, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetCamera: {fileID: 0}

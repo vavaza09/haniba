@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Events;
 
 public class RideManager : MonoBehaviour
 {
@@ -17,8 +18,10 @@ public class RideManager : MonoBehaviour
     [SerializeField] float maxWait = 9f;
 
     [SerializeField] RoadManager roadManager;
+    public UnityEvent clearData;
+    
 
-    int index;
+    public int index;
 
     void Start()
     {
@@ -31,7 +34,7 @@ public class RideManager : MonoBehaviour
     void ShowPassenger()
     {
         if (database == null || database.offers == null || database.offers.Count == 0) return;
-        if (index >= database.offers.Count) index = 0;
+        if (index >= database.offers.Count) clearData.Invoke();
 
         if (waitPanel) waitPanel.SetActive(false);
         if (acceptUI) acceptUI.Hide();

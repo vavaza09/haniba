@@ -11,6 +11,7 @@ public class DialogController : MonoBehaviour
     [SerializeField] private DialogUIController ui;
     [SerializeField] private PersonManager personManager;
     [SerializeField] private TaxiSeats seats;
+    [SerializeField] private CamManage camManage;
 
     [Header("Ownership / Integration")]
     [Tooltip("ถ้า true = ทีม Spawn เป็นเจ้าของ instance, ฝั่งเราจะไม่ Destroy ตอนลบ แต่ยิง event ขอให้เขา despawn แทน")]
@@ -25,6 +26,7 @@ public class DialogController : MonoBehaviour
     public UnityEvent<int> OnJobCompleted;          
     public UnityEvent<int> OnGhostRefused;
     public UnityEvent<int, bool> OnRideDialogEnded;
+    public UnityEvent<Person> OnPickupDialogEnded;
 
 
     [Header("Ride timing")]
@@ -107,7 +109,7 @@ public class DialogController : MonoBehaviour
         HandleDropoff(personAtDrop);
     }
 
-    
+
 
     private IEnumerator CoPlayNode(Person person, DialogueSet set, DialogueNode node, bool isPickup)
     {
@@ -154,10 +156,20 @@ public class DialogController : MonoBehaviour
             }
         }
 
-        ui.Close(() => _isPlaying = false);
+        ui.Close(() => {
+            _isPlaying = false;
+            if (isPickup)
+            {
+                StartCoroutine(CoStartRideAfterDelay(person));
+            }
+        });
 
+
+        //Debug.Log("here");
+        //StartCoroutine(CoStartRideAfterDelay(person));
         if (!isPickup)
         {
+            
             OnRideDialogEnded?.Invoke(id, true);
         }
     }
@@ -235,8 +247,7 @@ public class DialogController : MonoBehaviour
                     ui.Close(() =>
                     {
                         _isPlaying = false; // ปิดสถานะเล่น pickup
-
-                        StartCoroutine(CoStartRideAfterDelay(person));
+                        //StartCoroutine(CoStartRideAfterDelay(person));
                     });
                 }
                 else
@@ -254,6 +265,7 @@ public class DialogController : MonoBehaviour
 
                 // เพิ่ม hook เฉพาะทางได้อีกที่นี่ (EXORCISE_NOW, PAY_TIP, ...)
         }
+        camManage.ExitSideMode();
     }
 
     private IEnumerator CoStartRideAfterDelay(Person p)
