@@ -35,7 +35,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: ${{ github.event.inputs.targetPlatform }}
-
+          allowDirtyBuild: true
       - uses: actions/upload-artifact@v4
         with:
           name: Build-${{ github.event.inputs.targetPlatform }}
